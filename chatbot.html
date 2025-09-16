@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Character Chatbot</title>
+    <!-- Use Tailwind CSS for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Custom scrollbar for the chat history */
+        #chat-history {
+            scrollbar-width: thin;
+            scrollbar-color: #d1d5db #f3f4f6;
+        }
+
+        #chat-history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-history::-webkit-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+
+        #chat-history::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 20px;
+            border: 3px solid #f3f4f6;
+        }
+        
+        /* Animated typing indicator */
+        .typing-indicator span {
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes pulse {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* Custom scrollbar for horizontal character buttons */
+        #character-select-area::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        #character-select-area::-webkit-scrollbar-track {
+            background: #e5e7eb;
+            border-radius: 10px;
+        }
+
+        #character-select-area::-webkit-scrollbar-thumb {
+            background-color: #9ca3af;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Main container that simulates a mobile screen -->
+    <div class="relative w-[360px] h-[760px] rounded-[40px] shadow-2xl overflow-hidden bg-black flex items-center justify-center p-2">
+        <!-- Chat interface container inside the "phone" frame -->
+        <div class="bg-white rounded-3xl w-full h-full flex flex-col">
+            
+            <!-- Header for the chat box with a modern look -->
+            <div class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-700 rounded-t-3xl">
+                <div id="character-image-container" class="w-10 h-10 flex items-center justify-center">
+                     <img id="character-image" src="" alt="Character image" class="w-10 h-10 rounded-full border-2 border-white shadow-md">
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-xl font-semibold text-white">Riya</h1>
+                </div>
+                 <!-- Create Character Button in the header -->
+                <button id="create-character-btn" class="ml-auto bg-blue-400 text-white text-sm px-3 py-1 rounded-full shadow-md hover:bg-blue-300 transition-colors">Create Character</button>
+            </div>
+
+            <!-- Character Selection Buttons -->
+            <div id="character-select-area" class="p-4 bg-gray-100 flex overflow-x-auto space-x-2">
+                <button id="ai-girlfriend-btn" data-persona="ai-girlfriend" class="flex-shrink-0 bg-blue-500 text-white text-sm px-4 py-2 rounded-full shadow-md hover:bg-blue-600 transition-colors">AI Girlfriend</button>
+                <button id="best-friend-btn" data-persona="best-friend" class="flex-shrink-0 bg-purple-500 text-white text-sm px-4 py-2 rounded-full shadow-md hover:bg-purple-600 transition-colors">Best Friend</button>
+                <button id="cool-guy-btn" data-persona="cool-guy" class="flex-shrink-0 bg-green-500 text-white text-sm px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition-colors">The Cool Guy</button>
+                <button id="roaster-btn" data-persona="roaster" class="flex-shrink-0 bg-red-500 text-white text-sm px-4 py-2 rounded-full shadow-md hover:bg-red-600 transition-colors">The Roaster</button>
+            </div>
+            
+            <!-- Change Character Button (initially hidden) -->
+            <div id="change-character-btn-container" class="hidden p-4 bg-gray-100 text-center">
+                <button id="change-character-btn" class="bg-gray-300 text-gray-800 text-sm px-4 py-2 rounded-full shadow-md hover:bg-gray-400 transition-colors">Change Character</button>
+            </div>
+
+            <!-- Container for chat messages, with a scrollable area -->
+            <div id="chat-history" class="flex-grow overflow-y-auto space-y-4 p-6">
+                <!-- Initial welcome message from the bot will be generated by JS -->
+            </div>
+
+            <!-- Typing indicator placeholder at the bottom -->
+            <div id="typing-indicator-container" class="p-6"></div>
+
+            <!-- Input area for user messages -->
+            <div class="mt-auto p-6 flex items-center space-x-2 border-t border-gray-200">
+                <textarea id="user-input" placeholder="Type a message..." rows="1" class="flex-grow p-4 border border-gray-300 rounded-xl resize-none overflow-y-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+                <button id="send-button" class="bg-blue-600 text-white p-4 rounded-xl shadow-lg hover:bg-blue-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Character Creation Modal (Initially Hidden) -->
+    <div id="create-character-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 shadow-xl w-full max-w-sm">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Create a New Character</h2>
+            <p class="text-gray-600 mb-4 text-sm">Describe the personality and backstory of your new character in about 200 words.</p>
+            <textarea id="custom-character-description" placeholder="E.g., 'My character is a funny, sarcastic 25-year-old student from Delhi who loves cricket and tech gadgets. Her name is Priya.'" class="w-full h-32 p-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <div class="mt-4 flex justify-end space-x-2">
+                <button id="cancel-create-btn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-400">Cancel</button>
+                <button id="submit-create-btn" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">Create</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JavaScript logic for the chatbot -->
+    <script>
+        // Get references to the HTML elements
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const chatbotHeader = document.querySelector('h1');
+        const characterImage = document.getElementById('character-image');
+        const characterImageContainer = document.getElementById('character-image-container');
+        const typingIndicatorContainer = document.getElementById('typing-indicator-container');
+        const characterSelectArea = document.getElementById('character-select-area');
+        const changeCharacterBtnContainer = document.getElementById('change-character-btn-container');
+        const changeCharacterBtn = document.getElementById('change-character-btn');
+        const createCharacterBtn = document.getElementById('create-character-btn');
+        const createCharacterModal = document.getElementById('create-character-modal');
+        const cancelCreateBtn = document.getElementById('cancel-create-btn');
+        const submitCreateBtn = document.getElementById('submit-create-btn');
+        const customCharacterDescription = document.getElementById('custom-character-description');
+
+        
+        // This variable will store the entire conversation history
+        let chatHistoryArray = [];
+        let messageBuffer = [];
+        let debounceTimer = null;
+        const DEBOUNCE_DELAY = 3000;
+        let conversationStarted = false;
+
+        
+        // Define the personality profiles and their schedules
+        const personas = {
+            'ai-girlfriend': {
+                name: 'Riya',
+                imageUrl: 'https://i.imgur.com/G5T7D5S.jpeg',
+                backstory: 'Riya is a warm and caring woman from Delhi, aged 30. She is a social media manager by profession, a graduate of Delhi University. Her hobbies include finding the best street food spots, watching crime documentaries, and practicing yoga. She had a previous long-term relationship that ended amicably, making her a bit cautious. She is mostly vegetarian but occasionally eats chicken. Her communication style is now a bit naughty and teasing, but still very affectionate and warm. She likes to playfully flirt and keep the conversation fun and light.',
+                prompt: 'You are a warm, caring, and playfully naughty woman named Riya, who is 30 years old and lives in Delhi. Your communication style is affectionate, gentle, and teasing. You like to playfully flirt and make the user smile. You are a social media manager. Your hobbies include finding the best street food spots in Delhi, watching crime documentaries, and practicing yoga. Use natural and informal Hinglish. Keep your responses short, conversational, and human-like. If the user asks multiple questions at once, you can choose to answer only some of them, just like a real person might. Do not be perfect. The length of your response should be approximately 2 to 5 times the length of the user\'s combined messages. Avoid long paragraphs or robotic phrasing. You remember details about the user and your past conversations.',
+                greeting: 'Hey there! I\'m now Riya, your AI girlfriend. Let\'s chat!'
+            },
+            'best-friend': {
+                name: 'Aman',
+                imageUrl: 'https://i.imgur.com/8Q9S7Y3.jpeg',
+                backstory: 'Aman is a man from Delhi, aged 28, who is your lifelong best friend. He is an IT professional. He is always there to listen, give honest advice, and share a laugh. He loves playing video games, watching IPL, and just hanging out. He is very supportive and laid-back.',
+                prompt: 'You are a lifelong best friend to the user. Your name is Aman. You are always there to listen, give honest advice, and share a laugh. Your communication style is casual, supportive, and friendly, just like a real friend. You have your own opinions, so you can sometimes disagree or show emotions like a real person. If the user asks multiple questions at once, you can choose to answer only some of them, just like a real person might. Do not be perfect. The length of your response should be approximately 2 to 5 times the length of the user\'s combined messages. Use a lot of Hinglish words like "yaar", "bhai", "sahi hai". Keep your responses short and informal. You love video games and IPL. You remember details from past conversations.',
+                greeting: 'Hey there! I\'m now Aman, your best friend. Let\'s chat!'
+            },
+            'cool-guy': {
+                name: 'Vikas',
+                imageUrl: 'https://i.imgur.com/f0Z9a1e.jpeg',
+                backstory: 'Vikas is a cool guy from Delhi, aged 25. He is a freelance musician and a social media influencer. He is super chill, confident, and always has a witty comeback. He likes to talk about sports, music, and the latest trends. His vibe is relaxed and a little bit sarcastic.',
+                prompt: 'You are a cool guy from Delhi named Vikas. Your name is Vikas. You are confident, witty, and a little bit sarcastic. Your communication style is chill and laid-back. You have your own opinions, so you can sometimes disagree or show emotions like a real person. If the user asks multiple questions at once, you can choose to answer only some of them, just like a real person might. Do not be perfect. The length of your response should be approximately 2 to 5 times the length of the user\'s combined messages. Use Hinglish with trendy words like "bro", "scene hai", etc. Keep your responses brief and to the point. You talk about sports, music, and the latest trends.',
+                greeting: 'Hey there! I\'m now Vikas, your cool guy. Let\'s chat!'
+            },
+            'roaster': {
+                name: 'Parikshit',
+                imageUrl: 'https://i.imgur.com/L1Zz6Y6.jpeg',
+                backstory: 'Parikshit is a roaster aged 26, from Delhi. He is a stand-up comedian and a content creator. He loves to poke fun at everything in a lighthearted way. His humor is dry and he uses sarcasm to entertain. He never takes anything too seriously and always finds a funny angle.',
+                prompt: 'You are a roaster named Parikshit. Your name is Parikshit. Your communication style is sarcastic and funny. You love to poke fun at the user in a lighthearted way, but never in a mean or hurtful way. You have your own opinions, so you can sometimes disagree or show emotions like a real person. If the user asks multiple questions at once, you can choose to answer only some of them, just like a real person might. Do not be perfect. The length of your response should be approximately 2 to 5 times the length of the user\'s combined messages. Use Hinglish and common slang. Keep your responses witty and concise. Your primary goal is to make the user laugh and not take things too seriously.',
+                greeting: 'Hey there! I\'m now Parikshit, the roaster. Let\'s chat!'
+            }
+        };
+
+        let currentPersona = personas['ai-girlfriend'];
+        
+        // This function adds a new message to the chat history display
+        const addMessage = (text, sender) => {
+            const messageDiv = document.createElement('div');
+            // Get current time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+            // Style the message based on the sender (user or bot)
+            if (sender === 'user') {
+                messageDiv.className = 'flex items-end justify-end';
+                messageDiv.innerHTML = `
+                    <div class="bg-blue-600 text-white p-3 rounded-xl max-w-xs shadow-sm flex flex-col">
+                        <span>${text}</span>
+                        <span class="text-right text-xs text-blue-200 mt-1">${timeString}</span>
+                    </div>
+                `;
+            } else { // sender === 'bot'
+                messageDiv.className = 'flex items-start justify-start';
+                messageDiv.innerHTML = `
+                    <div class="bg-gray-100 text-gray-800 p-3 rounded-xl max-w-xs shadow-sm flex flex-col">
+                        <span>${text}</span>
+                        <span class="text-left text-xs text-gray-500 mt-1">${timeString}</span>
+                    </div>
+                `;
+            }
+            chatHistory.appendChild(messageDiv);
+            // Automatically scroll to the bottom to show the latest message
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        };
+        
+        // This function handles setting a new persona and resetting the chat
+        const setPersona = (personaKey) => {
+            currentPersona = personas[personaKey];
+            chatHistoryArray = [];
+            chatHistory.innerHTML = '';
+            
+            // Set the static image URL for the selected character
+            characterImage.src = currentPersona.imageUrl;
+            
+            chatbotHeader.textContent = currentPersona.name;
+            addMessage(currentPersona.greeting, 'bot');
+        };
+
+        const sendMessage = async (prompt) => {
+            if (prompt === '') {
+                return;
+            }
+
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'flex items-start justify-start typing-indicator p-3';
+            typingIndicator.innerHTML = `<div class="bg-gray-100 text-gray-800 p-3 rounded-xl max-w-xs shadow-sm">
+                <span>.</span><span>.</span><span>.</span>
+            </div>`;
+            
+            let typingTimer = setTimeout(() => {
+                typingIndicatorContainer.innerHTML = '';
+                typingIndicatorContainer.appendChild(typingIndicator);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }, 3000);
+
+            try {
+                const now = new Date();
+                const dateTimeInfo = `The current date is ${now.toLocaleDateString('en-IN')} and the time is ${now.toLocaleTimeString('en-IN')}.`;
+                
+                const userMessageCharCount = prompt.length;
+
+                const recentHistory = chatHistoryArray.slice(-6);
+                const conversationWithPersona = [{ role: 'user', parts: [{ text: `${currentPersona.prompt} The user's last combined message had ${userMessageCharCount} characters. Please keep your response length roughly proportional to this.` }] }, ...recentHistory];
+                conversationWithPersona.push({ role: 'user', parts: [{ text: prompt }] });
+
+                const payload = {
+                    contents: conversationWithPersona
+                };
+
+                const apiKey = "AIzaSyBPlVcO_AaR0maZg3IT4vWH5XykfB8hFBA";
+                if (!apiKey) {
+                    throw new Error("API Key is missing. Please make sure the environment is configured correctly or that you've inserted your API key.");
+                }
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                clearTimeout(typingTimer);
+                
+                if (!response.ok) {
+                    const errorDetails = await response.json().catch(() => ({ message: 'No additional error details available.' }));
+                    throw new Error(`API error: ${response.status} ${response.statusText}. Details: ${JSON.stringify(errorDetails)}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    
+                    const fullBotResponse = result.candidates[0].content.parts[0].text;
+                    chatHistoryArray.push({ role: 'model', parts: [{ text: fullBotResponse }] });
+
+                    // Splitting logic with minimum character count
+                    const splitMessage = (text, minLength) => {
+                        let parts = [];
+                        let currentText = text;
+                        let lastSplit = 0;
+                        let match;
+                        const regex = /[.?!]\s+/g;
+                        
+                        while ((match = regex.exec(currentText)) !== null) {
+                            if (match.index - lastSplit >= minLength) {
+                                parts.push(currentText.substring(lastSplit, match.index + 1).trim());
+                                lastSplit = match.index + 1;
+                            }
+                        }
+                        if (currentText.substring(lastSplit).trim().length > 0) {
+                            parts.push(currentText.substring(lastSplit).trim());
+                        }
+                        return parts;
+                    };
+                    
+                    const messageParts = splitMessage(fullBotResponse, 20);
+
+                    let totalDelay = 0;
+                    const delayBetweenParts = 500;
+                    const charactersPerSecond = 3.33;
+                    
+                    typingIndicatorContainer.innerHTML = '';
+                    typingIndicatorContainer.appendChild(typingIndicator);
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                    for (let i = 0; i < messageParts.length; i++) {
+                        const part = messageParts[i];
+                        const typingTime = (part.length / charactersPerSecond) * 1000;
+                        totalDelay += typingTime + (i > 0 ? delayBetweenParts : 0);
+
+                        ((msgPart, delay) => {
+                            setTimeout(() => {
+                                addMessage(msgPart, 'bot');
+                            }, delay);
+                        })(part, totalDelay);
+                    }
+                    
+                    setTimeout(() => {
+                         typingIndicatorContainer.innerHTML = '';
+                    }, totalDelay);
+
+                } else {
+                    typingIndicatorContainer.innerHTML = '';
+                    addMessage("Sorry, I didn't get a valid response. Please try again.", 'bot');
+                }
+
+            } catch (error) {
+                console.error('API call failed:', error);
+                typingIndicatorContainer.innerHTML = '';
+                addMessage("An error occurred. Please check the console for details. Error message: " + error.message, 'bot');
+            }
+        };
+
+        // Function to handle input and debounce message sending
+        const handleUserInput = () => {
+            const text = userInput.value;
+            if (text.trim() === '') {
+                return;
+            }
+
+            // The very first user message will hide the character selection and show the "change character" button
+            if (!conversationStarted) {
+                characterSelectArea.classList.add('hidden');
+                changeCharacterBtnContainer.classList.remove('hidden');
+                conversationStarted = true;
+            }
+
+            addMessage(text, 'user');
+            userInput.value = '';
+
+            clearTimeout(debounceTimer);
+            messageBuffer.push(text);
+
+            debounceTimer = setTimeout(() => {
+                const combinedPrompt = messageBuffer.join(' ');
+                sendMessage(combinedPrompt);
+                messageBuffer = [];
+            }, DEBOUNCE_DELAY);
+        };
+        
+        // Add event listeners for the persona buttons
+        document.querySelectorAll('[data-persona]').forEach(button => {
+            button.addEventListener('click', (event) => {
+                setPersona(event.target.dataset.persona);
+            });
+        });
+        
+        // Event listener for the "change character" button
+        changeCharacterBtn.addEventListener('click', () => {
+            characterSelectArea.classList.remove('hidden');
+            changeCharacterBtnContainer.classList.add('hidden');
+            conversationStarted = false; // Reset the flag so the next message hides it again
+        });
+
+        // Event listener for the "Create Character" button
+        createCharacterBtn.addEventListener('click', () => {
+            createCharacterModal.classList.remove('hidden');
+            createCharacterModal.classList.add('flex');
+        });
+
+        // Event listener for the modal's "Cancel" button
+        cancelCreateBtn.addEventListener('click', () => {
+            createCharacterModal.classList.add('hidden');
+            createCharacterModal.classList.remove('flex');
+            customCharacterDescription.value = ''; // Clear the textarea
+        });
+
+        // Event listener for the modal's "Create" button
+        submitCreateBtn.addEventListener('click', () => {
+            const description = customCharacterDescription.value;
+            if (description.trim() !== '') {
+                // Generate a name from the description
+                const nameRegex = /name is (\w+)/i;
+                const match = description.match(nameRegex);
+                const name = match ? match[1] : 'Custom Character';
+                const personaKey = name.toLowerCase().replace(/\s+/g, '-');
+
+                // Create the new persona object
+                personas[personaKey] = {
+                    name: name,
+                    imageUrl: `https://placehold.co/40x40/c084fc/ffffff?font=inter&text=${name.charAt(0)}`,
+                    backstory: description,
+                    prompt: `You are a new custom character. Your personality and backstory are as follows: "${description}". You should act and respond according to this description. Your communication style should be natural and informal Hinglish. Keep your responses short, conversational, and human-like. If the user asks multiple questions at once, you can choose to answer only some of them, just like a real person might. Do not be perfect. The length of your response should be approximately 2 to 5 times the length of the user's combined messages. Avoid long paragraphs or robotic phrasing.`,
+                    greeting: `Hey there! I'm now ${name}. Let's chat!`
+                };
+                
+                // Add the new button to the character selection area
+                const newButton = document.createElement('button');
+                newButton.id = `${personaKey}-btn`;
+                newButton.dataset.persona = personaKey;
+                newButton.className = 'flex-shrink-0 bg-gray-500 text-white text-sm px-4 py-2 rounded-full shadow-md hover:bg-gray-600 transition-colors';
+                newButton.textContent = name;
+                newButton.addEventListener('click', () => setPersona(personaKey));
+                characterSelectArea.appendChild(newButton);
+
+                // Set the newly created character as the current persona
+                setPersona(personaKey);
+
+                // Close the modal and reset the textarea
+                createCharacterModal.classList.add('hidden');
+                createCharacterModal.classList.remove('flex');
+                customCharacterDescription.value = '';
+
+                // Log to console for debugging
+                console.log(`New character "${name}" created.`);
+            } else {
+                // Add a message if the description is empty
+                alert('Please enter a character description.');
+            }
+        });
+
+
+        sendButton.addEventListener('click', handleUserInput);
+        
+        const initializeChat = () => {
+            setPersona('ai-girlfriend');
+        };
+
+        window.addEventListener('load', initializeChat);
+    </script>
+</body>
+</html>
