@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinZOTV Grievance Form</title>
+    <style>
+        /* CSS Variables for a clean, professional color scheme */
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff;
+            --text-color: #333333;
+            --secondary-text-color: #6c757d;
+            --accent-color: #007bff; /* A professional blue */
+            --border-color: #ced4da;
+            --focus-glow-color: rgba(0, 123, 255, 0.25);
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+
+        /* Global Styles & Body */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Main Form Container */
+        .form-container {
+            background-color: var(--card-bg-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .form-description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--secondary-text-color);
+            font-size: 0.95rem;
+        }
+
+        /* Form Groups & Labels */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .form-group small {
+            color: var(--secondary-text-color);
+            font-size: 0.85rem;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* Input & Select Fields */
+        input:not([type="checkbox"]),
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--focus-glow-color);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--secondary-text-color);
+        }
+
+        .form-group.error input,
+        .form-group.error textarea,
+        .form-group.error select {
+            border-color: var(--error-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Textarea specific styles */
+        textarea {
+            resize: vertical;
+            min-height: 140px;
+        }
+
+        /* Checkbox Styling */
+        .checkbox-group {
+            margin-top: 25px;
+        }
+
+        .checkbox-group label {
+            font-weight: normal;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: var(--secondary-text-color);
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.1);
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent-color);
+            color: var(--card-bg-color);
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 30px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Link for Monthly Stats */
+        .stats-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .stats-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Stats Container */
+        .stats-container {
+            display: none;
+            background-color: var(--card-bg-color);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            text-align: left;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .stats-container h2 {
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stats-container ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .stats-container li {
+            margin-bottom: 10px;
+        }
+        
+        .stats-container li strong {
+            color: var(--text-color);
+        }
+
+        /* Confirmation Message Styles */
+        .confirmation-message {
+            display: none;
+            background-color: var(--card-bg-color);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .confirmation-message h2 {
+            color: var(--success-color);
+            font-size: 2rem;
+        }
+
+        .confirmation-message p {
+            color: var(--secondary-text-color);
+        }
+
+        .new-grievance-btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .new-grievance-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="form-content" class="form-container">
+        <h1>WinZOTV Content Grievance Form</h1>
+        <p class="form-description">Your feedback is important to us. Please use this form to submit a grievance regarding any content on WinZOTV.</p>
+
+        <form id="grievanceForm" novalidate>
+            
+            <!-- Full Name -->
+            <div class="form-group">
+                <label for="fullName">What is your full name? <span style="color: var(--error-color);">*</span></label>
+                <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
+            </div>
+            
+            <!-- Email ID -->
+            <div class="form-group">
+                <label for="email">What email ID may we contact you on? <span style="color: var(--error-color);">*</span></label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email address">
+                <small>Note: You hereby allow us to contact you through the email-id regarding your grievance.</small>
+            </div>
+            
+            <!-- Content Title -->
+            <div class="form-group">
+                <label for="contentTitle">What title does your content grievance relate to? <span style="color: var(--error-color);">*</span></label>
+                <input type="text" id="contentTitle" name="contentTitle" required placeholder="e.g., 'The WinZO Story', 'Gameplay Highlights'">
+            </div>
+            
+            <!-- Nature of Grievance -->
+            <div class="form-group">
+                <label for="grievanceNature">What is the nature of your grievance? <span style="color: var(--error-color);">*</span></label>
+                <select id="grievanceNature" name="grievanceNature" required>
+                    <option value="" disabled selected>Please select an option</option>
+                    <option value="classification">Content Classification</option>
+                    <option value="description">Content Description</option>
+                    <option value="summary">Content Summary</option>
+                    <option value="access">Access Control</option>
+                    <option value="constituent">Constituent of the content</option>
+                </select>
+            </div>
+            
+            <!-- Detailed Complaint -->
+            <div class="form-group">
+                <label for="grievanceDetails">Please describe your complaint or grievance in detail <span style="color: var(--error-color);">*</span></label>
+                <textarea id="grievanceDetails" name="grievanceDetails" required placeholder="Your detailed description here..."></textarea>
+            </div>
+            
+            <!-- Episode & Timestamp -->
+            <div class="form-group">
+                <label for="timestamp">Please share the episode name, and the time-stamp of the scene for which you have a grievance. <span style="color: var(--error-color);">*</span></label>
+                <input type="text" id="timestamp" name="timestamp" required placeholder="e.g., 'Episode 3, 05:25'">
+            </div>
+            
+            <!-- Screenshot -->
+            <div class="form-group">
+                <label for="screenshot">Please share a screenshot of the clip your grievance relates to. (Optional)</label>
+                <input type="file" id="screenshot" name="screenshot" accept="image/*">
+            </div>
+            
+            <!-- Mandatory Checkboxes -->
+            <div class="checkbox-group">
+                <div class="form-group">
+                    <label for="checkbox1">
+                        <input type="checkbox" id="checkbox1" name="checkbox1" required>
+                        I hereby believe in good-faith that the content violates the Terms of WinZOTV or applicable law.
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="checkbox2">
+                        <input type="checkbox" id="checkbox2" name="checkbox2" required>
+                        I hereby confirm that all the information provided here is true, correct, accurate and complete. I acknowledge that the grievance redressal process starts when I have fully submitted all mandatory information required from me in the content grievance form.
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="checkbox3">
+                        <input type="checkbox" id="checkbox3" name="checkbox3" required>
+                        I hereby confirm that my grievance is related to the violation of code of ethics by the content published on WinZO TV. Publisher of the content reserves the right to not resolve the issue if the grievance does not relate to violation of code of ethics.
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn">Submit Grievance</button>
+            <a href="#" id="statsLink" class="stats-link">Monthly Stats</a>
+        </form>
+    </div>
+
+    <!-- Confirmation Message (Initially hidden) -->
+    <div id="confirmation-content" class="confirmation-message">
+        <h2>Grievance Submitted!</h2>
+        <p>Thank you for your feedback. We have received your request and will contact you via email shortly.</p>
+        <button id="newGrievanceBtn" class="new-grievance-btn">Submit Another Grievance</button>
+    </div>
+
+    <!-- Monthly Stats Container (Initially hidden) -->
+    <div id="stats-container" class="stats-container">
+        <h2>Monthly Grievance Stats</h2>
+        <ul>
+            <li><strong>Total open tickets at the beginning of the month:</strong> 150</li>
+            <li><strong>New tickets received:</strong> 85</li>
+            <li><strong>Tickets closed:</strong> 120</li>
+            <li><strong>Tickets in progress:</strong> 115</li>
+        </ul>
+        <a href="#" id="hideStatsLink" class="stats-link" style="color: #999;">Hide Stats</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('grievanceForm');
+        const formContainer = document.getElementById('form-content');
+        const confirmationContainer = document.getElementById('confirmation-content');
+        const statsContainer = document.getElementById('stats-container');
+        const newGrievanceBtn = document.getElementById('newGrievanceBtn');
+        const statsLink = document.getElementById('statsLink');
+        const hideStatsLink = document.getElementById('hideStatsLink');
+
+        const requiredFields = ['fullName', 'email', 'contentTitle', 'grievanceNature', 'grievanceDetails', 'timestamp', 'checkbox1', 'checkbox2', 'checkbox3'];
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            let isValid = true;
+            requiredFields.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                const formGroup = input.closest('.form-group');
+
+                if (formGroup) {
+                    formGroup.classList.remove('error');
+                }
+
+                if (input.type === 'checkbox') {
+                    if (!input.checked) {
+                        isValid = false;
+                        if (formGroup) {
+                            formGroup.classList.add('error');
+                        }
+                    }
+                } else if (input.tagName === 'SELECT' && !input.value) {
+                    isValid = false;
+                    if (formGroup) {
+                        formGroup.classList.add('error');
+                    }
+                } else if (!input.value.trim()) {
+                    isValid = false;
+                    if (formGroup) {
+                            formGroup.classList.add('error');
+                    }
+                }
+            });
+
+            if (isValid) {
+                formContainer.style.opacity = 0;
+                formContainer.style.transform = 'scale(0.95)';
+
+                setTimeout(() => {
+                    formContainer.style.display = 'none';
+                    confirmationContainer.style.display = 'block';
+                    confirmationContainer.style.opacity = 0;
+                    confirmationContainer.style.transform = 'scale(0.95)';
+
+                    setTimeout(() => {
+                        confirmationContainer.style.opacity = 1;
+                        confirmationContainer.style.transform = 'scale(1)';
+                    }, 50);
+                }, 400); 
+            }
+        });
+
+        newGrievanceBtn.addEventListener('click', () => {
+            confirmationContainer.style.opacity = 0;
+            confirmationContainer.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+                confirmationContainer.style.display = 'none';
+                formContainer.style.display = 'block';
+                formContainer.style.opacity = 0;
+                formContainer.style.transform = 'scale(0.95)';
+
+                form.reset();
+                form.querySelectorAll('.form-group.error').forEach(el => el.classList.remove('error'));
+
+                setTimeout(() => {
+                    formContainer.style.opacity = 1;
+                    formContainer.style.transform = 'scale(1)';
+                }, 50);
+            }, 400);
+        });
+
+        statsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            formContainer.style.display = 'none';
+            confirmationContainer.style.display = 'none';
+            statsContainer.style.display = 'block';
+        });
+
+        hideStatsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            statsContainer.style.display = 'none';
+            formContainer.style.display = 'block';
+        });
+    });
+</script>
+
+</body>
+</html>
